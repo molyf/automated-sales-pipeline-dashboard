@@ -20,7 +20,6 @@ def main():
     logger = get_run_logger()
     logger.info("🚀 Starting ETL pipeline...")
 
-
     try:
         # Load secret block directly as dict
         credentials = Secret.load("credentials").get()
@@ -35,13 +34,13 @@ def main():
         logger.info("✅ All secrets loaded successfully.")
 
         # Initialize S3 client
-        sts = boto3.client(
-            "sts",
+        s3_client = boto3.client(
+            's3',
             aws_access_key_id=aws_access_key,
             aws_secret_access_key=aws_secret_key
         )
-        identity = sts.get_caller_identity()
-        logger.info(f"AWS identity: {identity['Arn']}")
+        logger.info("✅ boto3 S3 client initialized.")
+
     except Exception as e:
         logger.error(f"❌ Failed to load secrets or initialize S3 client: {e}")
         raise
@@ -56,11 +55,11 @@ def main():
     customers_df, products_df, stores_df, sales_df, raw_df = model_sales_data(transformed_df, raw_df)
 
     # Launch uploads in parallel 
-    customer_task = upload_customers_to_s3.submit(customers_df, bucket_name)
-    product_task = upload_products_to_s3.submit(products_df, bucket_name)
-    store_task = upload_stores_to_s3.submit(stores_df, bucket_name)
-    sales_task = upload_sales_to_s3.submit(sales_df, bucket_name)
-    raw_task = upload_raw_df_to_s3.submit(raw_df, bucket_name)
+    customer_task = upload_customers_to_s3.submit(customers_df, bucket_name, s3=s3_client)
+    product_task = upload_products_to_s3.submit(products_df, bucket_name, s3=s3_client)
+    store_task = upload_stores_to_s3.submit(stores_df, bucket_name, s3=s3_client)
+    sales_task = upload_sales_to_s3.submit(sales_df, bucket_name, s3=s3_client)
+    raw_task = upload_raw_df_to_s3.submit(raw_df, bucket_name, s3=s3_client)
 
     # Wait for all uploads to finish
     customer_task.result()

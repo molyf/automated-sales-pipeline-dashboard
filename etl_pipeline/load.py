@@ -5,10 +5,6 @@ import logging
 from prefect import get_run_logger, task
 
 
-# Initialize S3 client globally
-s3 = boto3.client('s3')
-
-
 @task(name="Model Data")
 def model_sales_data(df: pd.DataFrame, raw_df: pd.DataFrame):
     """
@@ -38,7 +34,7 @@ def model_sales_data(df: pd.DataFrame, raw_df: pd.DataFrame):
     return customers, products, stores, sales, raw_df
 
 
-def upload_df_to_s3(df: pd.DataFrame, bucket: str, key: str):
+def upload_df_to_s3(df: pd.DataFrame, bucket: str, key: str, s3):
     """
     Uploads a pandas DataFrame as a CSV file to an S3 bucket.
     """
@@ -56,25 +52,25 @@ def upload_df_to_s3(df: pd.DataFrame, bucket: str, key: str):
 
 
 @task(name="Load Customers to S3", retries=1, retry_delay_seconds=10)
-def upload_customers_to_s3(customers_df: pd.DataFrame, bucket: str):
-    upload_df_to_s3(customers_df, bucket, "transformed_data/customers.csv")
+def upload_customers_to_s3(customers_df: pd.DataFrame, bucket: str, s3):
+    upload_df_to_s3(customers_df, bucket, "transformed_data/customers.csv", s3)
 
 
 @task(name="Load Products to S3", retries=1, retry_delay_seconds=10)
-def upload_products_to_s3(products_df: pd.DataFrame, bucket: str):
-    upload_df_to_s3(products_df, bucket, "transformed_data/products.csv")
+def upload_products_to_s3(products_df: pd.DataFrame, bucket: str, s3):
+    upload_df_to_s3(products_df, bucket, "transformed_data/products.csv", s3)
 
 
 @task(name="Load Stores to S3", retries=1, retry_delay_seconds=10)
-def upload_stores_to_s3(stores_df: pd.DataFrame, bucket: str):
-    upload_df_to_s3(stores_df, bucket, "transformed_data/stores.csv")
+def upload_stores_to_s3(stores_df: pd.DataFrame, bucket: str, s3):
+    upload_df_to_s3(stores_df, bucket, "transformed_data/stores.csv", s3)
 
 
 @task(name="Upload Sales", retries=1, retry_delay_seconds=10)
-def upload_sales_to_s3(sales_df: pd.DataFrame, bucket: str):
-    upload_df_to_s3(sales_df, bucket, "transformed_data/sales.csv")
+def upload_sales_to_s3(sales_df: pd.DataFrame, bucket: str, s3):
+    upload_df_to_s3(sales_df, bucket, "transformed_data/sales.csv", s3)
 
 
 @task(name="Load Raw Data to S3", retries=1, retry_delay_seconds=10)
-def upload_raw_df_to_s3(raw_df: pd.DataFrame, bucket: str):
-    upload_df_to_s3(raw_df, bucket, "raw_data/raw_sales_data.csv")
+def upload_raw_df_to_s3(raw_df: pd.DataFrame, bucket: str, s3):
+    upload_df_to_s3(raw_df, bucket, "raw_data/raw_sales_data.csv", s3)
