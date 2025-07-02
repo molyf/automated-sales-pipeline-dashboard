@@ -41,8 +41,7 @@ def main():
             aws_secret_access_key=aws_secret_key
         )
         identity = sts.get_caller_identity()
-        logger.info(f"AWS identity: {identity['Arn']}"
-
+        logger.info(f"AWS identity: {identity['Arn']}")
     except Exception as e:
         logger.error(f"❌ Failed to load secrets or initialize S3 client: {e}")
         raise
