@@ -1,0 +1,6 @@
+prefect==2.20.20
+boto3
+requests
+pandas
+numpy
+pytest
