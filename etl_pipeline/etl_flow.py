@@ -1,8 +1,8 @@
 import boto3
 from prefect import flow, get_run_logger
-from .extract import extract_from_mockaroo
-from .transform import transform_sales_data
-from .load import (
+from etl_pipeline.extract import extract_from_mockaroo
+from etl_pipeline.transform import transform_sales_data
+from etl_pipeline.load import (
     model_sales_data,
     upload_customers_to_s3,
     upload_products_to_s3,
@@ -35,12 +35,13 @@ def main():
         logger.info("✅ All secrets loaded successfully.")
 
         # Initialize S3 client
-        s3 = boto3.client(
-            's3',
+        sts = boto3.client(
+            "sts",
             aws_access_key_id=aws_access_key,
             aws_secret_access_key=aws_secret_key
         )
-        logger.info("✅ boto3 S3 client initialized.")
+        identity = sts.get_caller_identity()
+        logger.info(f"AWS identity: {identity['Arn']}"
 
     except Exception as e:
         logger.error(f"❌ Failed to load secrets or initialize S3 client: {e}")

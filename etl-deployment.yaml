@@ -1,9 +1,0 @@
-name: etl-deployment                
-flow_name: main                   
-work_queue_name: defaults     
-
-entrypoint: etl_pipeline/etl_flow.py:main
-
-pull:
-  - prefect_github.repository.GitHubRepository:
-      block_name: github-storage

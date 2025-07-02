@@ -1,0 +1,26 @@
+name: automated-sales-pipeline-dashboard
+prefect-version: 3.4.6  # (note: this should probably be 2.x; double-check)
+
+build: null
+
+push: null
+
+pull:
+- prefect.deployments.steps.git_clone:
+    repository: https://github.com/LamelK/automated-sales-pipeline-dashboard.git
+    branch: main
+    access_token: null  # Optional: Add token for private repos
+
+deployments:
+- name: etl-deployment
+  version: null
+  tags: []
+  description: Deploys the main ETL pipeline flow
+  schedule: {}  # Add cron/schedule here if needed
+  flow_name: main
+  entrypoint: etl_pipeline/etl_flow.py:main
+  parameters: {}
+  work_pool:
+    name: etl-workpool  # ✅ This is your managed work pool name
+    work_queue_name: null  # Not needed for managed pools
+    job_variables: {}
