@@ -1,10 +1,8 @@
 import boto3
 from prefect import flow, get_run_logger
-from etl_pipeline.extract import extract_from_mockaroo
-from etl_pipeline.transform import transform_sales_data
-import json
-from prefect.blocks.system import Secret
-from etl_pipeline.load import (
+from .extract import extract_from_mockaroo
+from .transform import transform_sales_data
+from .load import (
     model_sales_data,
     upload_customers_to_s3,
     upload_products_to_s3,
@@ -12,6 +10,9 @@ from etl_pipeline.load import (
     upload_sales_to_s3,
     upload_raw_df_to_s3
 )
+import json
+from prefect.blocks.system import Secret
+
 
 
 @flow(name="ETL Pipeline Flow")
@@ -21,12 +22,11 @@ def main():
 
 
     try:
-        # Load secret block and parse JSON
-        raw_secret = Secret.load("credentials").get()
-        credentials = json.loads(raw_secret)
+        # Load secret block directly as dict
+        credentials = Secret.load("credentials").get()
         logger.info("🔐 Loaded secret block: 'credentials'")
 
-        # Extract secrets
+        # Extract secrets directly
         api_key = credentials["MOCKAROO_API_KEY"]
         aws_access_key = credentials["AWS_ACCESS_KEY_ID"]
         aws_secret_key = credentials["AWS_SECRET_ACCESS_KEY"]

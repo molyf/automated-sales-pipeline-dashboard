@@ -1,14 +1,9 @@
-name: etl-deployment
-flow_name: main
-work_pool_name: etl-workpool
+name: etl-deployment                
+flow_name: main                   
+work_queue_name: defaults     
 
-storage:
-  type: github
-  repository: LamelK/automated-sales-pipeline-dashboard
-  reference: main
-  path: etl_pipeline/etl_flow.py  
+entrypoint: etl_pipeline/etl_flow.py:main
 
 pull:
-  type: git
-  url: https://github.com/LamelK/automated-sales-pipeline-dashboard.git
-  branch: main
+  - prefect_github.repository.GitHubRepository:
+      block_name: github-storage
