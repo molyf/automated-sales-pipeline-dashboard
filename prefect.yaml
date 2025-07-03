@@ -6,8 +6,9 @@ build: null
 push: null
 
 pull:
-  - prefect.deployments.steps.pull_from_s3:
-      bucket: databucket-v1
+  - prefect.deployments.steps.pull_from_with_block:
+      block_type_slug: s3-bucket
+      block_document_name: s3-bucket-block
       key: flows/etl_flow.zip
       unzip: true
 
