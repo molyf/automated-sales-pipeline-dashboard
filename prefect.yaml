@@ -5,6 +5,8 @@ build: null
 
 push: null
 
+workdir: "."
+
 storage:
   block: s3-bucket-block
   path: flows/etl_flow.zip
