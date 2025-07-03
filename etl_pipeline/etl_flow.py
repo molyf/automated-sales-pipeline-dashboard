@@ -16,7 +16,7 @@ from prefect.tasks import NO_CACHE
 
 
 
-@flow(name="ETL Pipeline Flow", cache_policy=NO_CACHE)
+@flow(name="ETL Pipeline Flow")
 def main():
     logger = get_run_logger()
     logger.info("🚀 Starting ETL pipeline...")
