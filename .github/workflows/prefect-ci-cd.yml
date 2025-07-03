@@ -80,11 +80,13 @@ jobs:
           mkdir -p flows
           zip -r flows/etl_flow.zip etl_pipeline requirements.txt
 
-      - name: Login to Prefect Cloud
+      - name: Prefect Cloud Login
         run: prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace "lamel/default"
 
-      - name: Build Prefect Deployment
-        run: prefect deployment build prefect.yaml
+      - name: Create Prefect Deployment
+        run: prefect deployment create prefect.yaml
 
-      - name: Apply Deployment to Prefect
-        run: prefect deployment apply automated-sales-pipeline-dashboard/etl-deployment.yaml
+      # Optional: Trigger a deployment run automatically on push
+      # - name: Trigger deployment run
+      #   run: prefect deployment run automated-sales-pipeline-dashboard/etl-deployment
+
