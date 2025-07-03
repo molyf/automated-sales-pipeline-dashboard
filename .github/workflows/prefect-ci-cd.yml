@@ -1,55 +1,10 @@
-# name: CI/CD - Prefect Flow
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-#   pull_request:
-#     branches:
-#       - main
-
-# jobs:
-#   test-and-deploy:
-#     runs-on: ubuntu-latest
-
-#     env:
-#       PYTHONPATH: .
-
-#     steps:
-#       - name: Checkout repo
-#         uses: actions/checkout@v3
-
-#       - name: Set up Python
-#         uses: actions/setup-python@v4
-#         with:
-#           python-version: '3.9'
-
-#       - name: Install dependencies
-#         run: |
-#           pip install -r requirements.txt
-#           pip install pytest
-
-#       - name: Run tests
-#         run: pytest tests/
-
-#       - name: Get current commit hash
-#         id: vars
-#         run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
-
-#       - name: Prefect Cloud Login
-#         run: prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace "lamel/default"
-
-#       - name: Deploy Flow to Prefect
-#         if: github.event_name == 'push'
-#         run: prefect deploy --all --version ${{ env.COMMIT_HASH }}
-
 name: CI/CD - Prefect Flow
 
 on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
@@ -57,6 +12,9 @@ on:
 jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
+
+    env:
+      PYTHONPATH: .
 
     steps:
       - name: Checkout repo
@@ -70,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install prefect prefect-aws pytest
+          pip install pytest
 
       - name: Run tests
         run: pytest tests/
@@ -80,13 +38,14 @@ jobs:
           mkdir -p flows
           zip -r flows/etl_flow.zip etl_pipeline requirements.txt
 
+      - name: Get current commit hash
+        id: vars
+        run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
       - name: Prefect Cloud Login
         run: prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace "lamel/default"
 
-      - name: Create Prefect Deployment
-        run: prefect deployment create prefect.yaml
-
-      # Optional: Trigger a deployment run automatically on push
-      # - name: Trigger deployment run
-      #   run: prefect deployment run automated-sales-pipeline-dashboard/etl-deployment
+      - name: Deploy Flow to Prefect
+        if: github.event_name == 'push'
+        run: prefect deploy --all --version ${{ env.COMMIT_HASH }}
 
