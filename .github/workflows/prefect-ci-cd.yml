@@ -7,14 +7,14 @@ on:
     paths:
       - 'etl_pipeline/**'
       - 'tests/**'
-      - 'deployment.yaml'
+      - 'prefect.yaml'
   pull_request:
     branches:
       - main
     paths:
       - 'etl_pipeline/**'
       - 'tests/**'
-      - 'deployment.yaml'
+      - 'prefect.yaml'
 
 jobs:
   test-and-deploy:
