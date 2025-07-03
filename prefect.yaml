@@ -5,13 +5,9 @@ build: null
 
 push: null
 
-pull:
-  - prefect.deployments.steps.pull_from_s3:
-      bucket: databucket-v1
-      key: raw_data/etl_flow.zip
-      unzip: true
-      credentials:
-        block: aws-credentials
+storage:
+  block: s3-bucket-block
+  path: flows/etl_flow.zip
 
 deployments:
 - name: etl-deployment
