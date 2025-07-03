@@ -6,8 +6,6 @@ build: null
 push: null
 
 pull:
-  - prefect.deployments.steps.load_aws_credentials:
-      block_name: aws-credentials   
   - prefect.deployments.steps.run_shell_script:
       id: download-flow-from-s3
       script: |
