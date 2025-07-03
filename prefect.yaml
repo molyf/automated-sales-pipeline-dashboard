@@ -48,7 +48,6 @@ pull:
       requires: prefect-aws>=0.5
       bucket: '{{ push_code.bucket }}'
       folder: '{{ push_code.folder }}'
-      unzip: true
       credentials: "{{ prefect.blocks.aws-credentials.aws-credentials }}"
 
   - prefect.deployments.steps.pip_install_requirements:
