@@ -6,20 +6,13 @@ build: null
 push: null
 
 pull:
-  - prefect.deployments.steps.set_variable:
-      name: AWS_ACCESS_KEY_ID
-      value: "{{ prefect.blocks.aws-credentials.AWS_ACCESS_KEY_ID }}"
-  - prefect.deployments.steps.set_variable:
-      name: AWS_SECRET_ACCESS_KEY
-      value: "{{ prefect.blocks.aws-credentials.AWS_SECRET_ACCESS_KEY }}"
-  - prefect.deployments.steps.set_variable:
-      name: AWS_DEFAULT_REGION
-      value: "{{ prefect.blocks.aws-credentials.AWS_DEFAULT_REGION }}"
+  - prefect.deployments.steps.load_aws_credentials:
+      block_name: aws-credentials   
   - prefect.deployments.steps.run_shell_script:
       id: download-flow-from-s3
       script: |
         echo "Downloading flow code from S3..."
-        aws s3 cp s3://your-bucket-name/flows/etl_flow.zip .
+        aws s3 cp s3://databucket-v1/flows/etl_flow.zip .
         unzip -o etl_flow.zip
 
 deployments:
