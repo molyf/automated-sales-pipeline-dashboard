@@ -10,6 +10,9 @@ jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
 
+    env:
+      PYTHONPATH: .
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -25,7 +28,7 @@ jobs:
           pip install pytest
 
       - name: Run tests
-        run: PYTHONPATH=. pytest tests/
+        run: pytest tests/
 
       - name: Prefect Cloud Login
         run: prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace "lamel/default"
