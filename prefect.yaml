@@ -1,16 +1,57 @@
+# name: automated-sales-pipeline-dashboard
+# prefect-version: 3.4.6  #
+
+# build: null
+
+# push: null
+
+# pull:
+#   - prefect.deployments.steps.pull_from_with_block:
+#       block_type_slug: s3-bucket
+#       block_document_name: s3-bucket-block
+#       key: flows/etl_flow.zip
+#       unzip: true
+
+#   - prefect.deployments.steps.pip_install_requirements:
+#       directory: "{{ pull_code.directory }}"
+#       requirements_file: requirements.txt
+
+# deployments:
+# - name: etl-deployment
+#   version: null
+#   tags: []
+#   description: Deploys the main ETL pipeline flow
+#   schedule: {} 
+#   flow_name: main
+#   entrypoint: etl_pipeline/etl_flow.py:main
+#   parameters: {}
+#   work_pool:
+#     name: etl-workpool  
+#     work_queue_name: null  
+#     job_variables: {}
 name: automated-sales-pipeline-dashboard
-prefect-version: 3.4.6  #
+prefect-version: 3.4.6
 
 build: null
 
-push: null
+push:
+  - prefect_aws.deployments.steps.push_to_s3:
+      id: push_code
+      requires: prefect-aws>=0.5
+      bucket: databucket-v1
+      folder: flows
+      files: 
+        - flows/etl_flow.zip
+      credentials: "{{ prefect.blocks.aws-credentials.aws-credentials }}"
 
 pull:
-  - prefect.deployments.steps.pull_from_with_block:
-      block_type_slug: s3-bucket
-      block_document_name: s3-bucket-block
-      key: flows/etl_flow.zip
+  - prefect_aws.deployments.steps.pull_from_s3:
+      id: pull_code
+      requires: prefect-aws>=0.5
+      bucket: '{{ push_code.bucket }}'
+      folder: '{{ push_code.folder }}'
       unzip: true
+      credentials: "{{ prefect.blocks.aws-credentials.aws-credentials }}"
 
   - prefect.deployments.steps.pip_install_requirements:
       directory: "{{ pull_code.directory }}"
@@ -18,14 +59,10 @@ pull:
 
 deployments:
 - name: etl-deployment
-  version: null
-  tags: []
-  description: Deploys the main ETL pipeline flow
-  schedule: {} 
   flow_name: main
   entrypoint: etl_pipeline/etl_flow.py:main
   parameters: {}
   work_pool:
-    name: etl-workpool  
-    work_queue_name: null  
+    name: etl-workpool
+    work_queue_name: null
     job_variables: {}
