@@ -12,7 +12,6 @@ from etl_pipeline.load import (
 )
 import json
 from prefect.blocks.system import Secret
-from prefect.tasks import NO_CACHE
 
 
 

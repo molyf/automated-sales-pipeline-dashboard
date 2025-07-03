@@ -4,7 +4,17 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'etl_pipeline/**'
+      - 'tests/**'
+      - 'deployment.yaml'
   pull_request:
+    branches:
+      - main
+    paths:
+      - 'etl_pipeline/**'
+      - 'tests/**'
+      - 'deployment.yaml'
 
 jobs:
   test-and-deploy:
@@ -30,9 +40,13 @@ jobs:
       - name: Run tests
         run: pytest tests/
 
+      - name: Get current commit hash
+        id: vars
+        run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
       - name: Prefect Cloud Login
         run: prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace "lamel/default"
 
       - name: Deploy Flow to Prefect
         if: github.event_name == 'push'
-        run: prefect deploy --all
+        run: prefect deploy --all --version ${{ env.COMMIT_HASH }}
