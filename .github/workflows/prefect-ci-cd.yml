@@ -1,10 +1,55 @@
+# name: CI/CD - Prefect Flow
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+#   pull_request:
+#     branches:
+#       - main
+
+# jobs:
+#   test-and-deploy:
+#     runs-on: ubuntu-latest
+
+#     env:
+#       PYTHONPATH: .
+
+#     steps:
+#       - name: Checkout repo
+#         uses: actions/checkout@v3
+
+#       - name: Set up Python
+#         uses: actions/setup-python@v4
+#         with:
+#           python-version: '3.9'
+
+#       - name: Install dependencies
+#         run: |
+#           pip install -r requirements.txt
+#           pip install pytest
+
+#       - name: Run tests
+#         run: pytest tests/
+
+#       - name: Get current commit hash
+#         id: vars
+#         run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+#       - name: Prefect Cloud Login
+#         run: prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace "lamel/default"
+
+#       - name: Deploy Flow to Prefect
+#         if: github.event_name == 'push'
+#         run: prefect deploy --all --version ${{ env.COMMIT_HASH }}
+
 name: CI/CD - Prefect Flow
 
 on:
   push:
     branches:
       - main
-      
   pull_request:
     branches:
       - main
@@ -12,9 +57,6 @@ on:
 jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
-
-    env:
-      PYTHONPATH: .
 
     steps:
       - name: Checkout repo
@@ -28,29 +70,21 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install pytest
+          pip install prefect prefect-aws pytest
 
       - name: Run tests
         run: pytest tests/
-      
+
       - name: Zip flow code
-        run: zip -r etl_flow.zip etl_pipeline
-
-      - name: Upload zipped flow to S3
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1  
         run: |
-          aws s3 cp etl_flow.zip s3://databucket-v1/flows/etl_flow.zip
+          mkdir -p flows
+          zip -r flows/etl_flow.zip etl_pipeline requirements.txt
 
-      - name: Get current commit hash
-        id: vars
-        run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
-
-      - name: Prefect Cloud Login
+      - name: Login to Prefect Cloud
         run: prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace "lamel/default"
 
-      - name: Deploy Flow to Prefect
-        if: github.event_name == 'push'
-        run: prefect deploy --all --version ${{ env.COMMIT_HASH }}
+      - name: Build Prefect Deployment
+        run: prefect deployment build prefect.yaml
+
+      - name: Apply Deployment to Prefect
+        run: prefect deployment apply automated-sales-pipeline-dashboard/etl-deployment.yaml
