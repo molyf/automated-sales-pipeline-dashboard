@@ -1,1 +1,35 @@
+name: CI/CD - Prefect Flow
 
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run tests
+        run: pytest tests/
+
+      - name: Prefect Cloud Login
+        run: prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace "lamel/default"
+
+      - name: Deploy Flow to Prefect
+        if: github.event_name == 'push'
+        run: prefect deploy --all
