@@ -6,10 +6,14 @@ build: null
 push: null
 
 pull:
-- prefect.deployments.steps.git_clone:
-    repository: https://github.com/LamelK/automated-sales-pipeline-dashboard.git
-    branch: main
-    access_token: null  
+  - prefect.deployments.steps.set_env_variables:
+      env: "{{ prefect.blocks.secret.credentials }}"
+  - prefect.deployments.steps.run_shell_script:
+      id: download-flow-from-s3
+      script: |
+        echo "📦 Downloading flow code from S3..."
+        aws s3 cp s3://databucket-v1/flows/etl_flow.zip .
+        unzip -o etl_flow.zip
 
 deployments:
 - name: etl-deployment
@@ -21,6 +25,6 @@ deployments:
   entrypoint: etl_pipeline/etl_flow.py:main
   parameters: {}
   work_pool:
-    name: etl-workpool  # ✅ This is your managed work pool name
-    work_queue_name: null  # Not needed for managed pools
+    name: etl-workpool  
+    work_queue_name: null  
     job_variables: {}
