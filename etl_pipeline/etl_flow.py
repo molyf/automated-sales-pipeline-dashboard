@@ -12,10 +12,11 @@ from etl_pipeline.load import (
 )
 import json
 from prefect.blocks.system import Secret
+from prefect.tasks import NO_CACHE
 
 
 
-@flow(name="ETL Pipeline Flow")
+@flow(name="ETL Pipeline Flow", cache_policy=NO_CACHE)
 def main():
     logger = get_run_logger()
     logger.info("🚀 Starting ETL pipeline...")

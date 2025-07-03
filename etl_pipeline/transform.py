@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from prefect import task, get_run_logger
+from prefect.tasks import NO_CACHE
 
 def log_summary(df, label, logger):
     """Logs dataset summary: shape, missing values, duplicates."""
@@ -86,7 +87,7 @@ def standardize_types(df):
     df["total_sale"] = pd.to_numeric(df["total_sale"], errors='coerce')
     return df
 
-@task(name="🧼 Transform Sales Data")
+@task(name="🧼 Transform Sales Data", cache_policy=NO_CACHE)
 def transform_sales_data(df_raw):
     logger = get_run_logger()
     logger.info("🔧 Starting transformation...")
