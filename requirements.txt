@@ -1,3 +1,4 @@
+prefect-aws
 prefect
 boto3
 requests
