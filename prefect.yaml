@@ -40,8 +40,6 @@ push:
       requires: prefect-aws>=0.5
       bucket: databucket-v1
       folder: flows
-      files: 
-        - flows/etl_flow.zip
       credentials: "{{ prefect.blocks.aws-credentials.aws-credentials }}"
 
 pull:
