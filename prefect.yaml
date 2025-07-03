@@ -6,9 +6,9 @@ build: null
 push: null
 
 pull:
-  - prefect.deployments.steps.s3.from_s3:
+  - prefect.deployments.steps.pull_from_s3:
       bucket: databucket-v1
-      key: flows/etl_flow.zip
+      key: raw_data/etl_flow.zip
       unzip: true
       credentials:
         block: aws-credentials
