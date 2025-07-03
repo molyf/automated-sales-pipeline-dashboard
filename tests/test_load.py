@@ -3,6 +3,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from etl_pipeline.load import model_sales_data, upload_df_to_s3  
 
+
 def sample_data():
     return pd.DataFrame({
         "customer_name": ["Alice", "Bob", "Alice"],
@@ -14,8 +15,8 @@ def sample_data():
         "total_sale": [10, 40, 30],
         "transaction_id": [1, 2, 3],
         "day_of_week": ["Monday", "Tuesday", "Wednesday"]
-
     })
+
 
 def test_model_sales_data():
     df = sample_data()
@@ -28,16 +29,13 @@ def test_model_sales_data():
     assert customers["customer_id"].is_unique
 
     # --- Check products ---
-    # Product names match input
     assert set(products["product_name"]) == set(df["product_name"])
-    
     # Check that the product category matches the original data for that product
     for _, row in products.iterrows():
         product_name = row["product_name"]
         product_category = row["product_category"]
         input_categories = df.loc[df["product_name"] == product_name, "product_category"].unique()
         assert product_category in input_categories
-
     assert products["product_id"].is_unique
 
     # --- Check stores ---
@@ -52,23 +50,22 @@ def test_model_sales_data():
     pd.testing.assert_frame_equal(raw_df, df_copy)
 
 
-@patch("etl_pipeline.load.s3.put_object")
 @patch("etl_pipeline.load.get_run_logger")
-def test_upload_df_to_s3(mock_get_logger, mock_put_object):
-    # Mock logger returned by get_run_logger()
+def test_upload_df_to_s3(mock_get_logger):
     mock_logger = MagicMock()
     mock_get_logger.return_value = mock_logger
 
+    mock_s3 = MagicMock()
     df = sample_data()
     bucket = "test-bucket"
     key = "test/key.csv"
 
-    # Call upload function
-    upload_df_to_s3(df, bucket, key)
+    # Pass the mocked s3 client explicitly
+    upload_df_to_s3(df, bucket, key, mock_s3)
 
-    # Assert boto3 s3 put_object called once with correct params
-    assert mock_put_object.call_count == 1
-    args, kwargs = mock_put_object.call_args
+    # Assert s3.put_object called once with correct parameters
+    mock_s3.put_object.assert_called_once()
+    args, kwargs = mock_s3.put_object.call_args
     assert kwargs["Bucket"] == bucket
     assert kwargs["Key"] == key
     assert isinstance(kwargs["Body"], str)
@@ -77,17 +74,21 @@ def test_upload_df_to_s3(mock_get_logger, mock_put_object):
     # Assert logger.info called for success
     mock_logger.info.assert_any_call(f"✅ Successfully uploaded {key} to s3 bucket")
 
-@patch("etl_pipeline.load.s3.put_object", side_effect=Exception("Upload failed"))
+
 @patch("etl_pipeline.load.get_run_logger")
-def test_upload_df_to_s3_failure(mock_get_logger, mock_put_object):
+def test_upload_df_to_s3_failure(mock_get_logger):
     mock_logger = MagicMock()
     mock_get_logger.return_value = mock_logger
+
+    mock_s3 = MagicMock()
+    mock_s3.put_object.side_effect = Exception("Upload failed")
+
     df = sample_data()
     bucket = "test-bucket"
     key = "test/key.csv"
 
     with pytest.raises(Exception, match="Upload failed"):
-        upload_df_to_s3(df, bucket, key)
+        upload_df_to_s3(df, bucket, key, mock_s3)
 
-    # Logger.error called for failure
+    # Assert logger.error called for failure
     mock_logger.error.assert_any_call(f"❌ Failed to upload {key} to s3 bucket")

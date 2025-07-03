@@ -25,7 +25,7 @@ jobs:
           pip install pytest
 
       - name: Run tests
-        run: pytest tests/
+        run: PYTHONPATH=. pytest tests/
 
       - name: Prefect Cloud Login
         run: prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace "lamel/default"
