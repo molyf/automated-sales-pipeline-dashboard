@@ -3,7 +3,7 @@ import json
 from prefect import task
 from prefect.blocks.system import Secret
 
-@task(name="Invoke Lambda Loader")
+@task(name="Invoke AWS-Lambda to transfer data from S3 to RDS")
 def invoke_lambda_loader(function_name: str, payload: dict = None):
     # Load credentials from Prefect Secret block
     credentials = Secret.load("credentials").get()
