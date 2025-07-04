@@ -33,11 +33,6 @@ jobs:
       - name: Run tests
         run: pytest tests/
 
-      - name: Zip flow code
-        run: |
-          mkdir -p flows
-          zip -r flows/etl_flow.zip etl_pipeline requirements.txt
-
       - name: Get current commit hash
         id: vars
         run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV

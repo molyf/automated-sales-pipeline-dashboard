@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 from unittest.mock import patch, MagicMock
 from etl_pipeline.load import model_sales_data, upload_df_to_s3  
-
+import io
 
 def sample_data():
     return pd.DataFrame({
@@ -17,7 +17,6 @@ def sample_data():
         "day_of_week": ["Monday", "Tuesday", "Wednesday"]
     })
 
-
 def test_model_sales_data():
     df = sample_data()
     df_copy = df.copy()  # Keep original data untouched for comparison
@@ -30,7 +29,6 @@ def test_model_sales_data():
 
     # --- Check products ---
     assert set(products["product_name"]) == set(df["product_name"])
-    # Check that the product category matches the original data for that product
     for _, row in products.iterrows():
         product_name = row["product_name"]
         product_category = row["product_category"]
@@ -46,9 +44,13 @@ def test_model_sales_data():
     for col in ["customer_name", "product_name", "product_category", "store_location"]:
         assert col not in sales.columns
 
+    # Optional: check sales still has expected columns
+    expected_sales_cols = ["customer_id", "product_id", "store_id", "price", "quantity_sold", "total_sale", "transaction_id", "day_of_week"]
+    for col in expected_sales_cols:
+        assert col in sales.columns
+
     # --- Check raw dataframe unchanged ---
     pd.testing.assert_frame_equal(raw_df, df_copy)
-
 
 @patch("etl_pipeline.load.get_run_logger")
 def test_upload_df_to_s3(mock_get_logger):
@@ -60,8 +62,8 @@ def test_upload_df_to_s3(mock_get_logger):
     bucket = "test-bucket"
     key = "test/key.csv"
 
-    # Pass the mocked s3 client explicitly
-    upload_df_to_s3(df, bucket, key, mock_s3)
+    # Call function and capture return value
+    result = upload_df_to_s3(df, bucket, key, mock_s3)
 
     # Assert s3.put_object called once with correct parameters
     mock_s3.put_object.assert_called_once()
@@ -74,6 +76,8 @@ def test_upload_df_to_s3(mock_get_logger):
     # Assert logger.info called for success
     mock_logger.info.assert_any_call(f"✅ Successfully uploaded {key} to s3 bucket")
 
+    # Assert function returns expected S3 path
+    assert result == f"s3://{bucket}/{key}"
 
 @patch("etl_pipeline.load.get_run_logger")
 def test_upload_df_to_s3_failure(mock_get_logger):

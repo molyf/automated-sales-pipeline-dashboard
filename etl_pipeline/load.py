@@ -47,6 +47,7 @@ def upload_df_to_s3(df: pd.DataFrame, bucket: str, key: str, s3):
         df.to_csv(csv_buffer, index=False)
         s3.put_object(Bucket=bucket, Key=key, Body=csv_buffer.getvalue())
         logger.info(f"✅ Successfully uploaded {key} to s3 bucket")
+        return f"s3://{bucket}/{key}"
     except Exception as e:
         logger.error(f"❌ Failed to upload {key} to s3 bucket")
         raise
@@ -54,24 +55,24 @@ def upload_df_to_s3(df: pd.DataFrame, bucket: str, key: str, s3):
 
 @task(name="Load Customers to S3-Bucket", retries=1, retry_delay_seconds=10, cache_policy=NO_CACHE)
 def upload_customers_to_s3(customers_df: pd.DataFrame, bucket: str, s3):
-    upload_df_to_s3(customers_df, bucket, "transformed_data/customers.csv", s3)
+    return upload_df_to_s3(customers_df, bucket, "transformed_data/customers.csv", s3)
 
 
 @task(name="Load Products to S3-Bucket", retries=1, retry_delay_seconds=10, cache_policy=NO_CACHE)
 def upload_products_to_s3(products_df: pd.DataFrame, bucket: str, s3):
-    upload_df_to_s3(products_df, bucket, "transformed_data/products.csv", s3)
+    return upload_df_to_s3(products_df, bucket, "transformed_data/products.csv", s3)
 
 
 @task(name="Load Stores to S3-Bucket", retries=1, retry_delay_seconds=10, cache_policy=NO_CACHE)
 def upload_stores_to_s3(stores_df: pd.DataFrame, bucket: str, s3):
-    upload_df_to_s3(stores_df, bucket, "transformed_data/stores.csv", s3)
+    return upload_df_to_s3(stores_df, bucket, "transformed_data/stores.csv", s3)
 
 
 @task(name="Load Sales to S3-Bucket", retries=1, retry_delay_seconds=10, cache_policy=NO_CACHE)
 def upload_sales_to_s3(sales_df: pd.DataFrame, bucket: str, s3):
-    upload_df_to_s3(sales_df, bucket, "transformed_data/sales.csv", s3)
+    return upload_df_to_s3(sales_df, bucket, "transformed_data/sales.csv", s3)
 
 
 @task(name="Load Raw Data to S3-Bucket", retries=1, retry_delay_seconds=10, cache_policy=NO_CACHE)
 def upload_raw_df_to_s3(raw_df: pd.DataFrame, bucket: str, s3):
-    upload_df_to_s3(raw_df, bucket, "raw_data/raw_sales_data.csv", s3)
+    return upload_df_to_s3(raw_df, bucket, "raw_data/raw_sales_data.csv", s3)
