@@ -1,14 +1,22 @@
 import boto3
 import json
 from prefect import task
+from prefect.blocks.system import Secret
 
 @task(name="Invoke Lambda Loader")
 def invoke_lambda_loader(function_name: str, payload: dict = None):
-    lambda_client = boto3.client('lambda')
+    # Load credentials from Prefect Secret block
+    credentials = Secret.load("credentials").get()
+
+    lambda_client = boto3.client(
+        'lambda',
+        aws_access_key_id=credentials["AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=credentials["AWS_SECRET_ACCESS_KEY"]
+    )
     
     response = lambda_client.invoke(
         FunctionName=function_name,
-        InvocationType='RequestResponse',  # synchronous invocation
+        InvocationType='RequestResponse',
         Payload=json.dumps(payload or {})
     )
     
