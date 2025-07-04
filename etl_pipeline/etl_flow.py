@@ -123,6 +123,7 @@ def confirm_s3_landing_complete(
 @flow(name="ETL Pipeline Flow")
 def main():
     logger = get_run_logger()
+    overall_start = time.time()
     logger.info("🚀 Starting ETL pipeline...")
 
     try:
@@ -182,6 +183,7 @@ def main():
     # raw_task.result()
     # logger.info(f"📦 Load/upload phase completed in {round(time.time() - start, 2)}s.")
 
+
     start = time.time()
     customer_task_future = upload_customers_to_s3.submit(customers_df, bucket_name, s3=s3_client)
     product_task_future = upload_products_to_s3.submit(products_df, bucket_name, s3=s3_client)
@@ -213,3 +215,5 @@ def main():
 
     # ✅ Done!
     logger.info("✅ ETL pipeline completed successfully.")
+    total_duration = round(time.time() - overall_start, 2)
+    logger.info(f"⏱️ Total ETL runtime: {total_duration} seconds.")
