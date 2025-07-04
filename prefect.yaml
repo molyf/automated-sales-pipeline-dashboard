@@ -62,4 +62,6 @@ deployments:
   work_pool:
     name: etl-workpool
     work_queue_name: null
-    job_variables: {}
+    job_variables:
+      env: 
+        AWS_ROLE_ARN: arn:aws:iam::215848077260:role/service-role/ExtractData-LambdaRole
