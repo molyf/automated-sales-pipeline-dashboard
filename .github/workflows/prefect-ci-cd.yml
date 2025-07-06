@@ -11,7 +11,7 @@ on:
 
 jobs:
   test-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
 
     env:
       PYTHONPATH: .
