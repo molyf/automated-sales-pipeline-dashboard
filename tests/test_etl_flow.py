@@ -93,5 +93,5 @@ def test_etl_process(
     mock_confirm_submit.assert_called_once()
     mock_confirm_task.result.assert_called_once()
 
-    mock_lambda_submit.assert_called_once_with("mapDataFunction")
+    mock_lambda_submit.assert_called_once_with("s3-to-rds-loader")
     mock_lambda_response.result.assert_called_once()
