@@ -124,7 +124,7 @@ def main():
         logger.info(f"✅ S3 load/upload phase completed and confirmed.")
 
         # Invoke the AWS Lambda function to load data into database
-        lambda_function_name = "mapDataFunction"  
+        lambda_function_name = "s3-to-rds-loader"  
         logger.info(f"⚡ Invoking Lambda loader function: {lambda_function_name}")
         
         lambda_response = invoke_lambda_loader.submit(lambda_function_name)

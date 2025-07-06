@@ -10,6 +10,7 @@ def invoke_lambda_loader(function_name: str, payload: dict = None):
 
     lambda_client = boto3.client(
         'lambda',
+        region_name='us-west-1',  # ✅ Force correct region
         aws_access_key_id=credentials["AWS_ACCESS_KEY_ID"],
         aws_secret_access_key=credentials["AWS_SECRET_ACCESS_KEY"]
     )
