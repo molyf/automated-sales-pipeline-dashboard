@@ -38,7 +38,7 @@ jobs:
         run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
       - name: Prefect Cloud Login
-        run: prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace "lamel/default"
+        run: prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace "lamel-mo/default" 
 
       - name: Deploy Flow to Prefect
         if: github.event_name == 'push'
