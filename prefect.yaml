@@ -33,4 +33,4 @@ deployments:
     work_queue_name: null
     job_variables:
       env: 
-        AWS_ROLE_ARN: arn:aws:iam::215848077260:role/lambda-s3-access
+        AWS_ROLE_ARN: arn:aws:iam::215848077260:role/lambda-s3-access 
