@@ -7,7 +7,7 @@ push:
   - prefect_aws.deployments.steps.push_to_s3:
       id: push_code
       requires: prefect-aws>=0.5
-      bucket: etl-data-8173ebd6
+      bucket: etl-data-7c272e4f
       folder: flows
       credentials: "{{ prefect.blocks.aws-credentials.aws-credentials }}"
 
