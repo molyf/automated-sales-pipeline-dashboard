@@ -11,13 +11,13 @@ on:
 
 jobs:
   test-and-deploy:
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: ubuntu-lastest #[self-hosted, Windows, X64]
 
     env:
       PYTHONPATH: .
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repos
         uses: actions/checkout@v3
 
       - name: Set up Python
